@@ -15,7 +15,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     
     <style>
-        /* เพิ่มฟอนต์และแอนิเมชันเบาๆ */
         @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
         body { font-family: 'Kanit', sans-serif; background-color: #f0fdf4; }
         .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); }
@@ -40,74 +39,69 @@
             </div>
         </header>
 
-        <!-- Widgets (ข้อมูลเซนเซอร์ + วิเคราะห์สถานะ) -->
+        <!-- Widgets (แสดงค่าปัจจุบัน 6 ช่อง) -->
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-            <!-- Temp -->
             <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden">
                 <div class="absolute top-0 right-0 p-4 opacity-10 text-red-500 text-6xl"><i class="fa-solid fa-temperature-half"></i></div>
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">อุณหภูมิ</h3>
+                    <h3 class="text-slate-500 font-semibold">อุณหภูมิ</h3>
                     <span id="badge-temp" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
                 </div>
                 <p class="text-4xl font-bold text-slate-800"><span id="val-temp">--</span><span class="text-xl text-slate-400 ml-1">°C</span></p>
             </div>
-
-            <!-- Humidity -->
             <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden">
                 <div class="absolute top-0 right-0 p-4 opacity-10 text-blue-500 text-6xl"><i class="fa-solid fa-droplet"></i></div>
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">ความชื้นอากาศ</h3>
+                    <h3 class="text-slate-500 font-semibold">ความชื้นอากาศ</h3>
                     <span id="badge-hum" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
                 </div>
                 <p class="text-4xl font-bold text-slate-800"><span id="val-hum">--</span><span class="text-xl text-slate-400 ml-1">%</span></p>
             </div>
-
-            <!-- Soil Moisture -->
-            <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden border-b-4 border-amber-600">
+            <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden">
                 <div class="absolute top-0 right-0 p-4 opacity-10 text-amber-700 text-6xl"><i class="fa-solid fa-seedling"></i></div>
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">ความชื้นดิน</h3>
+                    <h3 class="text-slate-500 font-semibold">ความชื้นดิน</h3>
                     <span id="badge-soil" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
                 </div>
                 <p class="text-4xl font-bold text-slate-800"><span id="val-soil">--</span><span class="text-xl text-slate-400 ml-1">%</span></p>
             </div>
-
-            <!-- Light -->
             <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden">
                 <div class="absolute top-0 right-0 p-4 opacity-10 text-yellow-400 text-6xl"><i class="fa-solid fa-sun"></i></div>
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">ความเข้มแสง</h3>
+                    <h3 class="text-slate-500 font-semibold">ความเข้มแสง</h3>
                     <span id="badge-light" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
                 </div>
                 <p class="text-4xl font-bold text-slate-800"><span id="val-light">--</span><span class="text-xl text-slate-400 ml-1">lx</span></p>
             </div>
-
-            <!-- CO2 -->
             <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden">
                 <div class="absolute top-0 right-0 p-4 opacity-10 text-gray-500 text-6xl"><i class="fa-solid fa-smog"></i></div>
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">ระดับ CO2</h3>
+                    <h3 class="text-slate-500 font-semibold">ระดับ CO2</h3>
                     <span id="badge-co2" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
                 </div>
                 <p class="text-4xl font-bold text-slate-800"><span id="val-co2">--</span><span class="text-xl text-slate-400 ml-1">ppm</span></p>
             </div>
-
-            <!-- Water Tank -->
-            <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden border-b-4 border-cyan-500">
+            <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden">
                 <div class="absolute top-0 right-0 p-4 opacity-10 text-cyan-500 text-6xl"><i class="fa-solid fa-glass-water"></i></div>
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">ปริมาณน้ำสำรอง</h3>
+                    <h3 class="text-slate-500 font-semibold">ปริมาณน้ำสำรอง</h3>
                     <span id="badge-water" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
                 </div>
                 <p class="text-4xl font-bold text-slate-800"><span id="val-water">--</span><span class="text-xl text-slate-400 ml-1">%</span></p>
             </div>
         </div>
 
+        <!-- NEW: ระบบสรุปผลและวิเคราะห์อัจฉริยะ (AI Summary) -->
+        <div class="glass-card rounded-3xl p-6 md:p-8 shadow-lg mb-8 border-l-8 border-indigo-500">
+            <h3 class="text-xl md:text-2xl font-bold text-slate-700 mb-4"><i class="fa-solid fa-robot text-indigo-500 mr-3"></i>AI สรุปภาพรวมและคำแนะนำ (Overall Analysis)</h3>
+            <div id="ai-summary-content" class="text-slate-600">
+                <p class="animate-pulse"><i class="fa-solid fa-circle-notch fa-spin mr-2"></i>ระบบกำลังประมวลผลข้อมูลร่วมกัน...</p>
+            </div>
+        </div>
+
         <!-- กราฟ History -->
         <div class="glass-card rounded-3xl p-6 shadow-lg">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-slate-700"><i class="fa-solid fa-chart-line text-emerald-500 mr-2"></i>แนวโน้มสภาพแวดล้อม (Real-time)</h3>
-            </div>
+            <h3 class="text-xl font-bold text-slate-700 mb-6"><i class="fa-solid fa-chart-line text-emerald-500 mr-2"></i>แนวโน้มอุณหภูมิและความชื้น (15 ค่าล่าสุด)</h3>
             <div class="relative h-72 md:h-96 w-full">
                 <canvas id="historyChart"></canvas>
             </div>
@@ -122,7 +116,7 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 2. ฟังก์ชันอัปเดต Badge แจ้งเตือน (ความคิดสร้างสรรค์/ใช้งานจริง)
+        // 2. ฟังก์ชันอัปเดตป้ายกำกับ (Badge) ย่อย
         function updateBadge(id, value, type) {
             const badge = document.getElementById(id);
             let status = "", bgColor = "", textColor = "";
@@ -131,20 +125,73 @@
                 if (value > 33) { status = "ร้อนเกินไป"; bgColor = "bg-red-100"; textColor = "text-red-700"; }
                 else { status = "อุณหภูมิดี"; bgColor = "bg-green-100"; textColor = "text-green-700"; }
             } else if (type === 'soil') {
-                if (value < 50) { status = "รดน้ำด่วน!"; bgColor = "bg-red-100"; textColor = "text-red-700"; badge.classList.add('animate-bounce'); }
-                else { status = "ดินชุ่มชื้น"; bgColor = "bg-green-100"; textColor = "text-green-700"; badge.classList.remove('animate-bounce');}
+                if (value < 50) { status = "ดินแห้ง"; bgColor = "bg-amber-100"; textColor = "text-amber-700"; }
+                else { status = "ดินชุ่มชื้น"; bgColor = "bg-green-100"; textColor = "text-green-700"; }
             } else if (type === 'water') {
                 if (value < 30) { status = "น้ำใกล้หมด"; bgColor = "bg-amber-100"; textColor = "text-amber-700"; }
                 else { status = "น้ำเพียงพอ"; bgColor = "bg-blue-100"; textColor = "text-blue-700"; }
             } else {
                 status = "ปกติ"; bgColor = "bg-green-100"; textColor = "text-green-700";
             }
-
             badge.innerText = status;
             badge.className = `text-xs px-2 py-1 rounded-full font-semibold ${bgColor} ${textColor}`;
         }
 
-        // 3. ตั้งค่าการแสดงผลกราฟ Chart.js
+        // NEW: 3. ฟังก์ชันวิเคราะห์ภาพรวมทั้งหมดร่วมกัน
+        function generateOverallSummary(temp, hum, soil, light, co2, water) {
+            let issues = [];
+            let score = 100; // คะแนนเต็ม 100
+
+            // เช็คเงื่อนไขเพื่อสร้างคำแนะนำ
+            if (temp > 33) { 
+                issues.push("🌡️ <b>อุณหภูมิสูงเกินไป:</b> แนะนำให้ระบบเปิดพัดลมระบายอากาศและสเปรย์หมอกทันที"); 
+                score -= 20; 
+            }
+            if (soil < 50) { 
+                issues.push("🌱 <b>ความชื้นดินต่ำ:</b> ดินแห้งเกินไป แนะนำให้เปิดวาล์วน้ำเพื่อรดน้ำแปลงปลูกโดยด่วน"); 
+                score -= 30; 
+            }
+            if (water < 30) { 
+                issues.push("💧 <b>น้ำสำรองวิกฤต:</b> ปริมาณน้ำในถังเหลือน้อย กรุณาเติมน้ำเพื่อป้องกันระบบชลประทานหยุดชะงัก"); 
+                score -= 20; 
+            }
+            if (co2 > 700) { 
+                issues.push("💨 <b>ระดับ CO2 สูง:</b> ควรเปิดช่องระบายอากาศเพื่อให้อากาศถ่ายเทสะดวกขึ้น"); 
+                score -= 10; 
+            }
+            if (light < 1500) { 
+                issues.push("☀️ <b>ความเข้มแสงน้อย:</b> หากเป็นช่วงเวลากลางวัน ควรเปิดไฟหลอด LED เสริมการสังเคราะห์แสง"); 
+                score -= 10; 
+            }
+
+            // แสดงผลลัพธ์
+            const summaryDiv = document.getElementById('ai-summary-content');
+            if (issues.length === 0) {
+                summaryDiv.innerHTML = `
+                    <div class="p-5 bg-green-50 rounded-2xl border border-green-200">
+                        <p class="text-green-700 font-bold text-lg"><i class="fa-solid fa-circle-check mr-2 text-2xl align-middle"></i>สภาพแวดล้อมสมบูรณ์แบบ (คะแนนสุขภาพ: 100/100)</p>
+                        <p class="text-green-600 mt-1">ทุกอย่างอยู่ในเกณฑ์มาตรฐาน เหมาะสมต่อการเจริญเติบโตของพืชมากที่สุด ระบบอัตโนมัติทำงานปกติ</p>
+                    </div>`;
+            } else {
+                let alertColor = score >= 70 ? "text-amber-600" : "text-red-600";
+                let alertBg = score >= 70 ? "bg-amber-50 border-amber-200" : "bg-red-50 border-red-200";
+                
+                let html = `<div class="p-5 rounded-2xl border ${alertBg}">
+                    <p class="font-bold ${alertColor} text-lg mb-3">
+                        <i class="fa-solid fa-triangle-exclamation mr-2"></i>คะแนนสุขภาพโรงเรือน: ${score}/100 (พบสิ่งที่ต้องปรับปรุง)
+                    </p>
+                    <ul class="list-none space-y-2 text-slate-700 bg-white p-4 rounded-xl shadow-sm border border-slate-100">`;
+                
+                issues.forEach(issue => {
+                    html += `<li class="border-b border-slate-100 pb-2 last:border-0 last:pb-0">${issue}</li>`;
+                });
+                
+                html += `</ul></div>`;
+                summaryDiv.innerHTML = html;
+            }
+        }
+
+        // 4. ตั้งค่า Chart.js
         const ctx = document.getElementById('historyChart').getContext('2d');
         Chart.defaults.font.family = 'Kanit';
         const historyChart = new Chart(ctx, {
@@ -152,49 +199,26 @@
             data: { 
                 labels: [], 
                 datasets: [
-                    { 
-                        label: 'อุณหภูมิ (°C)', 
-                        borderColor: '#ef4444', 
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        data: [], 
-                        borderWidth: 3,
-                        pointBackgroundColor: '#ef4444',
-                        tension: 0.4, fill: true
-                    },
-                    { 
-                        label: 'ความชื้น (%)', 
-                        borderColor: '#3b82f6', 
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        data: [], 
-                        borderWidth: 3,
-                        pointBackgroundColor: '#3b82f6',
-                        tension: 0.4, fill: true
-                    }
+                    { label: 'อุณหภูมิ (°C)', borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.1)', data: [], borderWidth: 3, tension: 0.4, fill: true },
+                    { label: 'ความชื้น (%)', borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.1)', data: [], borderWidth: 3, tension: 0.4, fill: true }
                 ]
             },
             options: { 
                 responsive: true, maintainAspectRatio: false,
                 plugins: { legend: { position: 'top' } },
-                scales: {
-                    x: { grid: { display: false } },
-                    y: { grid: { borderDash: [5, 5] } }
-                }
+                scales: { x: { grid: { display: false } }, y: { grid: { borderDash: [5, 5] } } }
             }
         });
 
-        // 4. ดึงข้อมูลจากโหนด latest เพื่อแสดงตัวเลข
+        // 5. ดึงข้อมูล Latest และอัปเดตหน้าจอ
         db.ref('lab/esp32-01/latest').on('value', (snapshot) => {
             const data = snapshot.val();
             if(data) {
-                // เปลี่ยนสถานะออนไลน์
                 document.getElementById('status').innerHTML = '<i class="fa-solid fa-wifi mr-2"></i> ระบบออนไลน์สมบูรณ์';
                 document.getElementById('status').className = 'px-5 py-2 bg-green-500 text-white rounded-full text-sm font-semibold shadow-lg shadow-green-500/30';
                 
-                // อัปเดตเวลาล่าสุด
-                const now = new Date();
-                document.getElementById('last-update').innerText = now.toLocaleTimeString('th-TH');
+                document.getElementById('last-update').innerText = new Date().toLocaleTimeString('th-TH');
 
-                // ใส่ค่าลง DOM
                 const temp = data.temp || 0, hum = data.hum || 0, soil = data.soil || 0;
                 const light = data.light || 0, co2 = data.co2 || 0, water = data.water || 0;
 
@@ -205,31 +229,30 @@
                 document.getElementById('val-co2').innerText = Math.round(co2);
                 document.getElementById('val-water').innerText = water.toFixed(1);
 
-                // เรียกฟังก์ชันวิเคราะห์สถานะ
                 updateBadge('badge-temp', temp, 'temp');
                 updateBadge('badge-hum', hum, 'hum');
                 updateBadge('badge-soil', soil, 'soil');
                 updateBadge('badge-light', light, 'light');
                 updateBadge('badge-co2', co2, 'co2');
                 updateBadge('badge-water', water, 'water');
+
+                // เรียกฟังก์ชันประมวลผลภาพรวม
+                generateOverallSummary(temp, hum, soil, light, co2, water);
             }
         });
 
-        // 5. ดึงข้อมูลจากโหนด history สำหรับวาดกราฟ 15 ค่าล่าสุด
+        // 6. ดึงข้อมูล History วาดกราฟ
         db.ref('lab/esp32-01/history').limitToLast(15).on('value', (snapshot) => {
             const labels = [], temp = [], hum = [];
-            
             snapshot.forEach((child) => {
                 const data = child.val();
                 if(data.timestamp) {
                     const date = new Date(data.timestamp * 1000); 
-                    const timeString = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
-                    labels.push(timeString);
+                    labels.push(`${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`);
                     temp.push(data.temp);
                     hum.push(data.hum);
                 }
             });
-            
             historyChart.data.labels = labels;
             historyChart.data.datasets[0].data = temp;
             historyChart.data.datasets[1].data = hum;
