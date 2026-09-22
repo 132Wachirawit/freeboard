@@ -3,75 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Greenhouse Dashboard</title>
-    <!-- โหลด Tailwind CSS สำหรับตกแต่งความสวยงาม -->
+    <title>Smart Greenhouse AI Dashboard</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- โหลด Chart.js สำหรับสร้างกราฟ -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- โหลด Firebase SDK -->
+    <!-- FontAwesome (Icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <style>
+        /* เพิ่มฟอนต์และแอนิเมชันเบาๆ */
+        @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap');
+        body { font-family: 'Kanit', sans-serif; background-color: #f0fdf4; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.5); }
+        .transition-all { transition: all 0.3s ease; }
+        .hover-up:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+    </style>
 </head>
-<body class="bg-slate-100 font-sans p-4 md:p-8">
-    <div class="max-w-6xl mx-auto">
-        <!-- ส่วนหัวของ Dashboard -->
-        <header class="bg-emerald-600 text-white p-6 rounded-2xl shadow-lg mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<body class="text-slate-700 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header -->
+        <header class="bg-gradient-to-r from-emerald-600 to-teal-500 text-white p-6 md:p-8 rounded-3xl shadow-lg mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
-                <h1 class="text-3xl font-bold">🌱 Smart Greenhouse IoT</h1>
-                <p class="text-emerald-100 mt-2 text-sm md:text-base">ระบบติดตามโรงเรือนอัจฉริยะแบบ Real-time</p>
+                <h1 class="text-3xl md:text-4xl font-bold tracking-wide"><i class="fa-solid fa-leaf mr-3"></i>Smart Greenhouse</h1>
+                <p class="text-emerald-100 mt-2 text-sm md:text-base">ระบบจัดการโรงเรือนเกษตรอัจฉริยะ (Real-time IoT)</p>
             </div>
-            <div id="status" class="px-4 py-2 bg-emerald-700 rounded-full text-sm font-semibold animate-pulse border border-emerald-500">
-                กำลังเชื่อมต่อฐานข้อมูล...
+            <div class="flex flex-col items-end">
+                <div id="status" class="px-5 py-2 bg-white/20 rounded-full text-sm font-semibold backdrop-blur-sm border border-white/30 animate-pulse">
+                    <i class="fa-solid fa-wifi mr-2"></i> กำลังเชื่อมต่อ...
+                </div>
+                <p class="text-xs text-emerald-100 mt-2">อัปเดตล่าสุด: <span id="last-update">--:--:--</span></p>
             </div>
         </header>
 
-        <!-- Widget แสดงค่าปัจจุบัน (Latest) -->
+        <!-- Widgets (ข้อมูลเซนเซอร์ + วิเคราะห์สถานะ) -->
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6 mb-8">
-            <div class="bg-white p-6 rounded-2xl shadow border-l-4 border-red-500 flex flex-col justify-between">
-                <h3 class="text-slate-500 font-medium text-sm md:text-base">อุณหภูมิ (Temp)</h3>
-                <p class="text-3xl md:text-4xl font-bold text-slate-800 mt-2" id="val-temp">-- <span class="text-lg text-slate-400">°C</span></p>
+            <!-- Temp -->
+            <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-red-500 text-6xl"><i class="fa-solid fa-temperature-half"></i></div>
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">อุณหภูมิ</h3>
+                    <span id="badge-temp" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
+                </div>
+                <p class="text-4xl font-bold text-slate-800"><span id="val-temp">--</span><span class="text-xl text-slate-400 ml-1">°C</span></p>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow border-l-4 border-blue-500 flex flex-col justify-between">
-                <h3 class="text-slate-500 font-medium text-sm md:text-base">ความชื้นอากาศ (Humi)</h3>
-                <p class="text-3xl md:text-4xl font-bold text-slate-800 mt-2" id="val-hum">-- <span class="text-lg text-slate-400">%</span></p>
+
+            <!-- Humidity -->
+            <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-blue-500 text-6xl"><i class="fa-solid fa-droplet"></i></div>
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">ความชื้นอากาศ</h3>
+                    <span id="badge-hum" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
+                </div>
+                <p class="text-4xl font-bold text-slate-800"><span id="val-hum">--</span><span class="text-xl text-slate-400 ml-1">%</span></p>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow border-l-4 border-yellow-400 flex flex-col justify-between">
-                <h3 class="text-slate-500 font-medium text-sm md:text-base">แสงสว่าง (Light)</h3>
-                <p class="text-3xl md:text-4xl font-bold text-slate-800 mt-2" id="val-light">-- <span class="text-lg text-slate-400">lx</span></p>
+
+            <!-- Soil Moisture -->
+            <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden border-b-4 border-amber-600">
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-amber-700 text-6xl"><i class="fa-solid fa-seedling"></i></div>
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">ความชื้นดิน</h3>
+                    <span id="badge-soil" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
+                </div>
+                <p class="text-4xl font-bold text-slate-800"><span id="val-soil">--</span><span class="text-xl text-slate-400 ml-1">%</span></p>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow border-l-4 border-orange-700 flex flex-col justify-between">
-                <h3 class="text-slate-500 font-medium text-sm md:text-base">ความชื้นดิน (Soil)</h3>
-                <p class="text-3xl md:text-4xl font-bold text-slate-800 mt-2" id="val-soil">-- <span class="text-lg text-slate-400">%</span></p>
+
+            <!-- Light -->
+            <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-yellow-400 text-6xl"><i class="fa-solid fa-sun"></i></div>
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">ความเข้มแสง</h3>
+                    <span id="badge-light" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
+                </div>
+                <p class="text-4xl font-bold text-slate-800"><span id="val-light">--</span><span class="text-xl text-slate-400 ml-1">lx</span></p>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow border-l-4 border-gray-500 flex flex-col justify-between">
-                <h3 class="text-slate-500 font-medium text-sm md:text-base">คาร์บอนไดออกไซด์ (CO2)</h3>
-                <p class="text-3xl md:text-4xl font-bold text-slate-800 mt-2" id="val-co2">-- <span class="text-lg text-slate-400">ppm</span></p>
+
+            <!-- CO2 -->
+            <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-gray-500 text-6xl"><i class="fa-solid fa-smog"></i></div>
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">ระดับ CO2</h3>
+                    <span id="badge-co2" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
+                </div>
+                <p class="text-4xl font-bold text-slate-800"><span id="val-co2">--</span><span class="text-xl text-slate-400 ml-1">ppm</span></p>
             </div>
-            <div class="bg-white p-6 rounded-2xl shadow border-l-4 border-cyan-400 flex flex-col justify-between">
-                <h3 class="text-slate-500 font-medium text-sm md:text-base">ระดับน้ำ (Water)</h3>
-                <p class="text-3xl md:text-4xl font-bold text-slate-800 mt-2" id="val-water">-- <span class="text-lg text-slate-400">%</span></p>
+
+            <!-- Water Tank -->
+            <div class="glass-card rounded-3xl p-6 shadow-md hover-up transition-all relative overflow-hidden border-b-4 border-cyan-500">
+                <div class="absolute top-0 right-0 p-4 opacity-10 text-cyan-500 text-6xl"><i class="fa-solid fa-glass-water"></i></div>
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-slate-500 font-semibold text-sm md:text-base">ปริมาณน้ำสำรอง</h3>
+                    <span id="badge-water" class="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500">รอข้อมูล</span>
+                </div>
+                <p class="text-4xl font-bold text-slate-800"><span id="val-water">--</span><span class="text-xl text-slate-400 ml-1">%</span></p>
             </div>
         </div>
 
-        <!-- กราฟแสดงประวัติ (History) -->
-        <div class="bg-white p-6 rounded-2xl shadow">
-            <h3 class="text-xl font-bold text-slate-700 mb-4">แนวโน้มอุณหภูมิและความชื้น (15 ค่าล่าสุด)</h3>
-            <div class="relative h-64 md:h-80">
+        <!-- กราฟ History -->
+        <div class="glass-card rounded-3xl p-6 shadow-lg">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-slate-700"><i class="fa-solid fa-chart-line text-emerald-500 mr-2"></i>แนวโน้มสภาพแวดล้อม (Real-time)</h3>
+            </div>
+            <div class="relative h-72 md:h-96 w-full">
                 <canvas id="historyChart"></canvas>
             </div>
         </div>
     </div>
 
     <script>
-        // 1. ตั้งค่าเชื่อมต่อ Firebase (ใช้ URL ของคุณและไม่มี .json ต่อท้าย)
+        // 1. ตั้งค่าเชื่อมต่อ Firebase
         const firebaseConfig = {
             databaseURL: "https://iot-132-default-rtdb.asia-southeast1.firebasedatabase.app/" 
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 2. ตั้งค่าการแสดงผลกราฟ Chart.js
+        // 2. ฟังก์ชันอัปเดต Badge แจ้งเตือน (ความคิดสร้างสรรค์/ใช้งานจริง)
+        function updateBadge(id, value, type) {
+            const badge = document.getElementById(id);
+            let status = "", bgColor = "", textColor = "";
+
+            if (type === 'temp') {
+                if (value > 33) { status = "ร้อนเกินไป"; bgColor = "bg-red-100"; textColor = "text-red-700"; }
+                else { status = "อุณหภูมิดี"; bgColor = "bg-green-100"; textColor = "text-green-700"; }
+            } else if (type === 'soil') {
+                if (value < 50) { status = "รดน้ำด่วน!"; bgColor = "bg-red-100"; textColor = "text-red-700"; badge.classList.add('animate-bounce'); }
+                else { status = "ดินชุ่มชื้น"; bgColor = "bg-green-100"; textColor = "text-green-700"; badge.classList.remove('animate-bounce');}
+            } else if (type === 'water') {
+                if (value < 30) { status = "น้ำใกล้หมด"; bgColor = "bg-amber-100"; textColor = "text-amber-700"; }
+                else { status = "น้ำเพียงพอ"; bgColor = "bg-blue-100"; textColor = "text-blue-700"; }
+            } else {
+                status = "ปกติ"; bgColor = "bg-green-100"; textColor = "text-green-700";
+            }
+
+            badge.innerText = status;
+            badge.className = `text-xs px-2 py-1 rounded-full font-semibold ${bgColor} ${textColor}`;
+        }
+
+        // 3. ตั้งค่าการแสดงผลกราฟ Chart.js
         const ctx = document.getElementById('historyChart').getContext('2d');
+        Chart.defaults.font.family = 'Kanit';
         const historyChart = new Chart(ctx, {
             type: 'line',
             data: { 
@@ -82,66 +157,79 @@
                         borderColor: '#ef4444', 
                         backgroundColor: 'rgba(239, 68, 68, 0.1)',
                         data: [], 
-                        tension: 0.4,
-                        fill: true
+                        borderWidth: 3,
+                        pointBackgroundColor: '#ef4444',
+                        tension: 0.4, fill: true
                     },
                     { 
                         label: 'ความชื้น (%)', 
                         borderColor: '#3b82f6', 
                         backgroundColor: 'rgba(59, 130, 246, 0.1)',
                         data: [], 
-                        tension: 0.4,
-                        fill: true
+                        borderWidth: 3,
+                        pointBackgroundColor: '#3b82f6',
+                        tension: 0.4, fill: true
                     }
                 ]
             },
             options: { 
-                responsive: true, 
-                maintainAspectRatio: false,
-                animation: { duration: 0 },
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
                 scales: {
-                    y: { beginAtZero: false }
+                    x: { grid: { display: false } },
+                    y: { grid: { borderDash: [5, 5] } }
                 }
             }
         });
 
-        // 3. ดึงข้อมูลจากโหนด /lab/esp32-01/latest เพื่อแสดงตัวเลข
+        // 4. ดึงข้อมูลจากโหนด latest เพื่อแสดงตัวเลข
         db.ref('lab/esp32-01/latest').on('value', (snapshot) => {
             const data = snapshot.val();
             if(data) {
-                // อัปเดตสถานะการเชื่อมต่อ
-                const statusEl = document.getElementById('status');
-                statusEl.innerHTML = '🟢 ออนไลน์ (ข้อมูลล่าสุด)';
-                statusEl.className = 'px-4 py-2 bg-emerald-100 text-emerald-800 rounded-full text-sm font-bold border border-emerald-200 shadow-sm';
+                // เปลี่ยนสถานะออนไลน์
+                document.getElementById('status').innerHTML = '<i class="fa-solid fa-wifi mr-2"></i> ระบบออนไลน์สมบูรณ์';
+                document.getElementById('status').className = 'px-5 py-2 bg-green-500 text-white rounded-full text-sm font-semibold shadow-lg shadow-green-500/30';
                 
-                // อัปเดตตัวเลขเซนเซอร์
-                document.getElementById('val-temp').innerHTML = `${data.temp ? data.temp.toFixed(1) : '--'} <span class="text-lg text-slate-400">°C</span>`;
-                document.getElementById('val-hum').innerHTML = `${data.hum ? data.hum.toFixed(1) : '--'} <span class="text-lg text-slate-400">%</span>`;
-                document.getElementById('val-light').innerHTML = `${data.light ? Math.round(data.light) : '--'} <span class="text-lg text-slate-400">lx</span>`;
-                document.getElementById('val-soil').innerHTML = `${data.soil ? data.soil.toFixed(1) : '--'} <span class="text-lg text-slate-400">%</span>`;
-                document.getElementById('val-co2').innerHTML = `${data.co2 ? Math.round(data.co2) : '--'} <span class="text-lg text-slate-400">ppm</span>`;
-                document.getElementById('val-water').innerHTML = `${data.water ? data.water.toFixed(1) : '--'} <span class="text-lg text-slate-400">%</span>`;
+                // อัปเดตเวลาล่าสุด
+                const now = new Date();
+                document.getElementById('last-update').innerText = now.toLocaleTimeString('th-TH');
+
+                // ใส่ค่าลง DOM
+                const temp = data.temp || 0, hum = data.hum || 0, soil = data.soil || 0;
+                const light = data.light || 0, co2 = data.co2 || 0, water = data.water || 0;
+
+                document.getElementById('val-temp').innerText = temp.toFixed(1);
+                document.getElementById('val-hum').innerText = hum.toFixed(1);
+                document.getElementById('val-soil').innerText = soil.toFixed(1);
+                document.getElementById('val-light').innerText = Math.round(light);
+                document.getElementById('val-co2').innerText = Math.round(co2);
+                document.getElementById('val-water').innerText = water.toFixed(1);
+
+                // เรียกฟังก์ชันวิเคราะห์สถานะ
+                updateBadge('badge-temp', temp, 'temp');
+                updateBadge('badge-hum', hum, 'hum');
+                updateBadge('badge-soil', soil, 'soil');
+                updateBadge('badge-light', light, 'light');
+                updateBadge('badge-co2', co2, 'co2');
+                updateBadge('badge-water', water, 'water');
             }
         });
 
-        // 4. ดึงข้อมูลจากโหนด /lab/esp32-01/history เพื่อวาดกราฟ
+        // 5. ดึงข้อมูลจากโหนด history สำหรับวาดกราฟ 15 ค่าล่าสุด
         db.ref('lab/esp32-01/history').limitToLast(15).on('value', (snapshot) => {
             const labels = [], temp = [], hum = [];
             
             snapshot.forEach((child) => {
                 const data = child.val();
                 if(data.timestamp) {
-                    // แปลง Unix Timestamp เป็นเวลาที่อ่านได้
                     const date = new Date(data.timestamp * 1000); 
                     const timeString = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
-                    
                     labels.push(timeString);
                     temp.push(data.temp);
                     hum.push(data.hum);
                 }
             });
             
-            // อัปเดตข้อมูลในกราฟ
             historyChart.data.labels = labels;
             historyChart.data.datasets[0].data = temp;
             historyChart.data.datasets[1].data = hum;
